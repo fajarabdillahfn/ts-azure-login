@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure AD Login</title>
+    <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 300px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #006abc;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .hidden {
+            display: none;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            word-break: break-all;
+        }
+        .loading {
+            margin-top: 10px;
+            color: #666;
+        }
+        .error {
+            color: #dc3545;
+            margin-top: 10px;
+        }
+        .success {
+            color: #28a745;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome</h1>
+        <div id="loginSection">
+            <button id="loginButton">Login with Azure AD</button>
+        </div>
+        <div id="authenticatedSection" class="hidden">
+            <p class="success">You are logged in!</p>
+            <button id="helloButton">Get Hello Message</button>
+            <button id="logoutButton">Logout</button>
+            <div id="response"></div>
+            <div id="loading" class="loading hidden">Loading...</div>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+</body>
+</html>
