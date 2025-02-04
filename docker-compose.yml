@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: orbit-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: orbit_user
+      POSTGRES_PASSWORD: orbit_password
+      POSTGRES_DB: orbit_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orbit_user -d orbit_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  liquibase:
+    image: liquibase/liquibase
+    entrypoint: /liquibase/changelog/docker-entrypoint.sh
+    volumes:
+      - ./migrations:/liquibase/changelog
+    environment:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/orbit_db
+      LIQUIBASE_COMMAND_USERNAME: orbit_user
+      LIQUIBASE_COMMAND_PASSWORD: orbit_password
+      LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.sql
+      LIQUIBASE_SEARCH_PATH: /liquibase/changelog
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    build: .
+    container_name: orbit-app
+    ports:
+      - "3300:3300"
+    volumes:
+      - ./src:/app/src
+      - ./migrations:/app/migrations
+      - ./package.json:/app/package.json
+      - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./tsconfig.build.json:/app/tsconfig.build.json
+      - ./.env:/app/.env
+      - ./dist:/app/dist
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=orbit_user
+      - DB_PASSWORD=orbit_password
+      - DB_DATABASE=orbit_db
+      - NODE_ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    name: orbit_postgres_data

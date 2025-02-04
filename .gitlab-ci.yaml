@@ -1,0 +1,46 @@
+stages:
+  - build
+  - migrate
+  - deploy
+
+variables:
+  NODE_ENV: production
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_USER: postgres
+  DB_PASSWORD: password
+  DB_NAME: orbit
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+build:
+  stage: build
+  image: node:18
+  script:
+    - echo "Installing dependencies..."
+    - npm install
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 hour
+
+run_migrations:
+  stage: migrate
+  image: liquibase/liquibase
+  script:
+    - echo "Running database migrations..."
+    - liquibase --defaultsFile=migrations/liquibase.properties update
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  image: node:18
+  script:
+    - echo "Deploying application..."
+    - npm run deploy
+  only:
+    - main
